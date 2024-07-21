@@ -64,25 +64,33 @@ beta_n = .5*exp((10*mV-v+VT)/(40*mV))/ms : Hz
 # Threshold and refractoriness are only used for spike counting
 group = NeuronGroup(1, eqs, threshold='v>-20*mV', refractory=3*ms,
                 method='exponential_euler')
-group.v = ENa
 
-# Little trick to get a sequence of input spikes that get faster and faster
-inp_sp = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold='v>1', reset='v=0', method='euler')
-S = Synapses(inp_sp, group, on_pre='ge += we')
-S.connect(p=1)
+synapse_type = [EK,El,ENa]
 
-monitor = StateMonitor(group, 'v', record=True)
+for x in synapse_type:
+    #group.v = x 
+    group.v = x
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    print(x)
+    print(group.v)
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+#    # Little trick to get a sequence of input spikes that get faster and faster
+    #inp_sp = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
+    inp_sp = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1')
+    #S = Synapses(inp_sp, group, on_pre='ge += we')
+    #S.connect(p=1)
 
-run(duration)
+    monitor = StateMonitor(group, 'v', record=True)
 
-figure(figsize=(10,6))
-plt.plot(monitor.t/ms, monitor.v[0]/mV)
-ylim(-70, -50)
-ylabel('Membrane potential (mV)')
-xlabel('Time (ms)')
-tight_layout()
-plt.show()
-
+    run(duration)
+    figure(figsize=(10,6))
+    plt.plot(monitor.t/ms, monitor.v[0]/mV)
+    ylim(min(monitor.v[0]/mV), max(monitor.v[0]/mV))
+    ylabel('Membrane potential (mV)')
+    xlabel('Time (ms)')
+    tight_layout()
+    plt.show()
+    
 
 
 
