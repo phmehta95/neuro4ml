@@ -6,6 +6,7 @@
 import os
 import matplotlib.pyplot as plt
 from brian2 import *
+from brian2 import collect
 prefs.codegen.target = 'numpy' #setting the code generation target to "numpy"
 
 #######################Code to emulate biological neurons######################
@@ -62,35 +63,81 @@ beta_n = .5*exp((10*mV-v+VT)/(40*mV))/ms : Hz
 ''')
 
 # Threshold and refractoriness are only used for spike counting
-group = NeuronGroup(1, eqs, threshold='v>-20*mV', refractory=3*ms,
-                method='exponential_euler')
+group = NeuronGroup(1, eqs, threshold='v>-20*mV', refractory=3*ms,method='exponential_euler')
 
-synapse_type = [EK,El,ENa]
 
-for x in synapse_type:
-    #group.v = x 
-    group.v = x
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    print(x)
-    print(group.v)
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-#    # Little trick to get a sequence of input spikes that get faster and faster
-    #inp_sp = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
-    inp_sp = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1')
-    #S = Synapses(inp_sp, group, on_pre='ge += we')
-    #S.connect(p=1)
+#Plotting neuron potential over time for Leak, Sodium, and Potassium channels
+#Use "Multiple runs" in Brian network 
+figure, axis = plt.subplots(3)
 
-    monitor = StateMonitor(group, 'v', record=True)
+#Leak channel
+group.v = El
+# Little trick to get a sequence of input spikes that get faster and faster
+inp_sp1 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
+S1 = Synapses(inp_sp1, group, on_pre='ge += we')
+S1.connect(p=1)
+monitor_El = StateMonitor(group, 'v', record=True)
+net1 = Network(inp_sp1,S1,monitor_El)
+net1.run(duration)
 
-    run(duration)
-    figure(figsize=(10,6))
-    plt.plot(monitor.t/ms, monitor.v[0]/mV)
-    ylim(min(monitor.v[0]/mV), max(monitor.v[0]/mV))
-    ylabel('Membrane potential (mV)')
-    xlabel('Time (ms)')
-    tight_layout()
-    plt.show()
-    
+group.v = EK
+inp_sp2 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
+S2 = Synapses(inp_sp2, group, on_pre='ge += we')
+S2.connect(p=1)
+monitor_Ek = StateMonitor(group, 'v', record=True)
+run(duration)
+
+
+axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV)
+axis[1].plot(monitor_Ek.t/ms, monitor_Ek.v[0]/mV)
+
+
+
+#run(duration)
+#axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV)
+#axis[0].ylim(min(monitor_El.v[0]/mV), max(monitor_El.v[0]/mV))
+#axis[0].ylabel('Membrane potential (mV)')
+#axis[0].xlabel('Time (ms)')
+#tight_layout()
+#print(collect())
+
+
+#Potassium channel
+#group.v = EK
+# Little trick to get a sequence of input spikes that get faster and faster
+#inp_sp2 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
+#S2 = Synapses(inp_sp2, group, on_pre='ge += we')
+#S2.connect(p=1)
+#monitor_Ek = StateMonitor(group, 'v', record=True)
+#run(duration)
+#axis[1].plot(monitor_Ek.t/ms, monitor_Ek.v[0]/mV)
+#axis[0].ylim(min(monitor_El.v[0]/mV), max(monitor_El.v[0]/mV))
+#axis[0].ylabel('Membrane potential (mV)')
+#axis[0].xlabel('Time (ms)')
+#tight_layout()
+
+
+#Sodium channel
+#group.v = ENa
+# Little trick to get a sequence of input spikes that get faster and faster
+#inp_sp3 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
+#S3 = Synapses(inp_sp3, group, on_pre='ge += we')
+#S3.connect(p=1)
+#monitor_ENa = StateMonitor(group, 'v', record=True)
+#run(duration)
+#axis[1].plot(monitor_ENa.t/ms, monitor_ENa.v[0]/mV)
+#axis[0].ylim(min(monitor_El.v[0]/mV), max(monitor_El.v[0]/mV))
+#axis[0].ylabel('Membrane potential (mV)')
+#axis[0].xlabel('Time (ms)')
+#tight_layout()
+
+
+
+
+
+
+plt.show()
+
 
 
 
