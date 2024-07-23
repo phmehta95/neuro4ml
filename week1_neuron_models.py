@@ -63,7 +63,8 @@ beta_n = .5*exp((10*mV-v+VT)/(40*mV))/ms : Hz
 ''')
 
 # Threshold and refractoriness are only used for spike counting
-group = NeuronGroup(1, eqs, threshold='v>-20*mV', refractory=3*ms,method='exponential_euler')
+#group = NeuronGroup(1, eqs, threshold='v>-20*mV', refractory=3*ms,method='exponential_euler')
+
 
 
 #Plotting neuron potential over time for Leak, Sodium, and Potassium channels
@@ -71,24 +72,44 @@ group = NeuronGroup(1, eqs, threshold='v>-20*mV', refractory=3*ms,method='expone
 figure, axis = plt.subplots(3)
 
 #Leak channel
-group.v = El
+#group.v = El
 # Little trick to get a sequence of input spikes that get faster and faster
-inp_sp1 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
-S1 = Synapses(inp_sp1, group, on_pre='ge += we')
-S1.connect(p=1)
-monitor_El = StateMonitor(group, 'v', record=True)
-net1 = Network(inp_sp1,S1,monitor_El)
-net1.run(duration)
+#inp_sp1 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
+#S1 = Synapses(inp_sp1, group, on_pre='ge += we')
+#S1.connect(p=1)
+#monitor_El = StateMonitor(group, 'v', record=True)
+#net1 = Network()
+#net1.add(S1)
+#net1.add(monitor_El)
+#net1.add(inp_sp1)
+#net1.add(group)
+#net1.run(duration)
+#store(net1)
+#stop()
 
+#axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV)
+
+#del(monitor_El)
+#del(group)
+
+
+group = NeuronGroup(1, eqs, threshold='v>-20*mV', refractory=3*ms,method='exponential_euler')
+#Potassium channel
 group.v = EK
 inp_sp2 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
 S2 = Synapses(inp_sp2, group, on_pre='ge += we')
 S2.connect(p=1)
-monitor_Ek = StateMonitor(group, 'v', record=True)
-run(duration)
+monitor_Ek = StateMonitor(group, 'v', record=False)
+net2 = Network()
+net2.add(S2)
+net2.add(monitor_Ek)
+net2.add(inp_sp2)
+net2.add(group)
+net2.run(duration)
 
 
-axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV)
+#print(net1[group])
+#axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV)
 axis[1].plot(monitor_Ek.t/ms, monitor_Ek.v[0]/mV)
 
 
