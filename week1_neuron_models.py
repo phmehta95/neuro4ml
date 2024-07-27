@@ -25,15 +25,15 @@ prefs.codegen.target = 'numpy' #setting the code generation target to "numpy"
 duration = 200*ms
 
 #Parameters
-area = 20000*umetre**2
-Cm = (1*ufarad*cm**-2) * area
-gl = (5e-5*siemens*cm**-2) * area
-El = -65*mV
-EK = -90*mV
-ENa = 50*mV
-g_na = (100*msiemens*cm**-2) * area
-g_kd = (30*msiemens*cm**-2) * area
-VT = -63*mV
+area = 20000*umetre**2 #Surface area of neuron membrane. This scales conductances and capacitances to the actual size of the neuron.
+Cm = (1*ufarad*cm**-2) * area #Capacitance per unit area, membrane capacitance. Calculated as 1 muF/cm2 x area. It represents the ability of the membrane to store charge.
+gl = (5e-5*siemens*cm**-2) * area #Leak conductance per unit area  ('g1')
+El = -65*mV #Leak Nernst Potential
+EK = -90*mV #Potassium Nernst Potential
+ENa = 50*mV #Sodium Nernst Potential
+g_na = (100*msiemens*cm**-2) * area #Sodium conductance per unit area
+g_kd = (30*msiemens*cm**-2) * area  #Potassium conductance per unit area (siemens is the unit for conductance)
+VT = -63*mV #Membrane potential
 
 # Time constants
 taue = 5*ms
@@ -142,6 +142,16 @@ del(group)
 axis[0].set_ylim([-70,-50])
 axis[1].set_ylim([-70,-50])
 axis[2].set_ylim([-70,-50])
+
+#axis[0].set_ylabel('Membrane potential (mV)')
+axis[1].set_ylabel('Membrane potential (mV)')
+#axis[2].set_ylabel('Membrane potential (mV)')
+
+axis[0].set_xlabel('Time (ms)')
+axis[1].set_xlabel('Time (ms)')
+axis[2].set_xlabel('Time (ms)')
+
+
 
 
 plt.show()
