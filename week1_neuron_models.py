@@ -88,7 +88,7 @@ net1.run(duration)
 #store(net1)
 #stop()
 
-axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV)
+axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV, "-g", label='Leak')
 
 del(monitor_El)
 del(group)
@@ -109,7 +109,7 @@ net2.add(group)
 net2.run(duration)
 
 
-axis[1].plot(monitor_Ek.t/ms, monitor_Ek.v[0]/mV)
+axis[1].plot(monitor_Ek.t/ms, monitor_Ek.v[0]/mV, "-b", label='K')
 
 del(monitor_Ek)
 del(group)
@@ -130,70 +130,33 @@ net3.add(group)
 net3.run(duration)
 
 
-axis[2].plot(monitor_ENa.t/ms, monitor_ENa.v[0]/mV)
+axis[2].plot(monitor_ENa.t/ms, monitor_ENa.v[0]/mV, "-r", label='Na')
 
 del(monitor_ENa)
 del(group)
-
-
-
-
 
 axis[0].set_ylim([-70,-50])
 axis[1].set_ylim([-70,-50])
 axis[2].set_ylim([-70,-50])
 
-#axis[0].set_ylabel('Membrane potential (mV)')
+
 axis[1].set_ylabel('Membrane potential (mV)')
-#axis[2].set_ylabel('Membrane potential (mV)')
+
 
 axis[0].set_xlabel('Time (ms)')
 axis[1].set_xlabel('Time (ms)')
 axis[2].set_xlabel('Time (ms)')
 
 
+axis[0].legend(loc='upper right')
+axis[1].legend(loc='upper right')
+axis[2].legend(loc='upper right')
 
-
+#axis[1].text(0.95, 0.95, 'K')
+#axis[2].text(0.95, 0.95,'Na')
+print(gi)
+plt.savefig("Hodgkin-Huxley_channels.png")
 plt.show()
-
-#run(duration)
-#axis[0].plot(monitor_El.t/ms, monitor_El.v[0]/mV)
-#axis[0].ylim(min(monitor_El.v[0]/mV), max(monitor_El.v[0]/mV))
-#axis[0].ylabel('Membrane potential (mV)')
-#axis[0].xlabel('Time (ms)')
-#tight_layout()
-#print(collect())
-
-
-#Potassium channel
-#group.v = EK
-# Little trick to get a sequence of input spikes that get faster and faster
-#inp_sp2 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
-#S2 = Synapses(inp_sp2, group, on_pre='ge += we')
-#S2.connect(p=1)
-#monitor_Ek = StateMonitor(group, 'v', record=True)
-#run(duration)
-#axis[1].plot(monitor_Ek.t/ms, monitor_Ek.v[0]/mV)
-#axis[0].ylim(min(monitor_El.v[0]/mV), max(monitor_El.v[0]/mV))
-#axis[0].ylabel('Membrane potential (mV)')
-#axis[0].xlabel('Time (ms)')
-#tight_layout()
-
-
-#Sodium channel
-#group.v = ENa
-# Little trick to get a sequence of input spikes that get faster and faster
-#inp_sp3 = NeuronGroup(1, 'dv/dt=int(t<150*ms)*t/(50*ms)**2:1', threshold ='v>1', reset='v=0', method='euler')
-#S3 = Synapses(inp_sp3, group, on_pre='ge += we')
-#S3.connect(p=1)
-#monitor_ENa = StateMonitor(group, 'v', record=True)
-#run(duration)
-#axis[1].plot(monitor_ENa.t/ms, monitor_ENa.v[0]/mV)
-#axis[0].ylim(min(monitor_El.v[0]/mV), max(monitor_El.v[0]/mV))
-#axis[0].ylabel('Membrane potential (mV)')
-#axis[0].xlabel('Time (ms)')
-#tight_layout()
-
 
 
 
