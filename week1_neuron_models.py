@@ -154,13 +154,41 @@ axis[2].legend(loc='upper right')
 #axis[2].text(0.95, 0.95,'Na')
 
 plt.savefig("Hodgkin-Huxley_channels.png")
+#plt.show()
+
+######################Integrate and fire neuron##############################
+
+
+
+duration = 50*ms
+
+eqs = '''
+dv/dt = 0/second : 1
+'''
+G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler')
+nspikes_in = 100
+timesep_in = 10*ms
+G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
+S = Synapses(G_in, G_out, on_pre='v += 0.3')
+S.connect(p=1)
+M = StateMonitor(G_out, 'v', record=True)
+
+net4 = Network()
+net4.add(G_out)
+net4.add(G_in)
+net4.add(S)
+net4.add(M)
+net4.run(duration)
+
+plt.figure(figsize=(8, 3))
+plt.plot(M.t/ms, M.v[0])
+xlabel('Time (ms)')
+ylabel('v')
+axhline(1, ls='--', c='g', lw=2)
+tight_layout()
+
+
 plt.show()
-
-
-
-
-
-
 
 
 
