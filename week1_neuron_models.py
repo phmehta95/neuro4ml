@@ -19,10 +19,7 @@ prefs.codegen.target = 'numpy' #setting the code generation target to "numpy"
 
 #Creating a dictionary to store parameters for the Hodgkin-Huxley neuron
 
-#HH_dict = {
-
-#
-duration = 200*ms
+duration = 200*ms #Duration of neuron pulse 
 
 #Parameters
 area = 20000*umetre**2 #Surface area of neuron membrane. This scales conductances and capacitances to the actual size of the neuron.
@@ -40,10 +37,11 @@ taue = 5*ms
 taui = 10*ms
 
 # Reversal potentials
-Ee = 0*mV
-Ei = -80*mV
-we = 2*nS  # excitatory synaptic weight
-wi = 67*nS  # inhibitory synaptic weight
+#In a biological membrane the reversal potential is the membrane potential at which the direction of the ionic current reverses. 
+Ee = 0*mV #Excitatory postsynaptic potential (makes a postsynaptic (recieving) neuron more likely to generate an action potential) 
+Ei = -80*mV #Inhibitory postsynaptic potential (makes a postsynaptic (recieving) neuron less likely to generate an action potential)
+we = 2*nS  # excitatory synaptic weight (positive value, increases the likelihood of a postsynaptic neuron from firing)
+wi = 67*nS  # inhibitory synaptic weight (negative value, decreases the likelihood of a postsynaptic neuron from firing)
 
 # The model
 eqs = Equations('''
@@ -154,7 +152,7 @@ axis[2].legend(loc='upper right')
 
 #axis[1].text(0.95, 0.95, 'K')
 #axis[2].text(0.95, 0.95,'Na')
-print(gi)
+
 plt.savefig("Hodgkin-Huxley_channels.png")
 plt.show()
 
