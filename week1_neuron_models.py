@@ -180,12 +180,128 @@ net4.add(S)
 net4.add(M)
 net4.run(duration)
 
+plt.figure(0)
+plt.figure( figsize=(8, 3))
+plt.plot(M.t/ms, M.v[0])
+xlabel('Time (ms)')
+ylabel('v')
+axhline(1, ls='--', c='g', lw=2)
+tight_layout()
+
+
+######################Leaky untegrate and fire neuron##############################
+
+duration = 50*ms
+
+eqs = '''
+dv/dt = -v/(15*ms) : 1
+'''
+G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler')
+nspikes_in = 100
+timesep_in = 10*ms
+G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
+S = Synapses(G_in, G_out, on_pre='v += 0.6')
+S.connect(p=1)
+M = StateMonitor(G_out, 'v', record=True)
+
+net5 = Network()
+net5.add(G_out)
+net5.add(G_in)
+net5.add(S)
+net5.add(M)
+net5.run(duration)
+
+plt.figure(1)
 plt.figure(figsize=(8, 3))
 plt.plot(M.t/ms, M.v[0])
 xlabel('Time (ms)')
 ylabel('v')
 axhline(1, ls='--', c='g', lw=2)
 tight_layout()
+######################################Reliable spike timing#########################
+
+plt.figure(2)
+plt.figure(figsize=(10, 6))
+
+# Neuron equations and parameters
+tau = 10*ms
+sigma = .03
+eqs_neurons = '''
+dx/dt = (.65*I - x) / tau + sigma * (2 / tau)**.5 * xi : 1
+I = I_shared*int((t>10*ms) and (t<950*ms)) : 1
+I_shared : 1 (linked)
+'''
+
+# The common input
+N = 25
+neuron_input = NeuronGroup(1, 'x = 1.5 : 1', method='euler')
+
+# The noisy neurons receiving the same input
+neurons = NeuronGroup(N, model=eqs_neurons, threshold='x > 1',
+                      reset='x = 0', refractory=5*ms, method='euler')
+neurons.x = 'rand()*0.2'
+neurons.I_shared = linked_var(neuron_input, 'x') # input.x is continuously fed into neurons.I
+spikes = SpikeMonitor(neurons)
+M = StateMonitor(neurons, ('x', 'I'), record=True)
+
+run(1000*ms)
+
+def add_spike_peak(x, t, i):
+    T = array(rint(t/defaultclock.dt), dtype=int)
+    y = x.copy()
+    y[T, i] = 4
+    return y
+
+ax_top = subplot(321)
+plot(M.t/ms, add_spike_peak(M.x[:].T, spikes.t[:], spikes.i[:]), '-k', alpha=0.05)
+ax_top.set_frame_on(False)
+xticks([])
+yticks([])
+ax_mid = subplot(323)
+plot(M.t/ms, M.I[0], '-k')
+ax_mid.set_frame_on(False)
+xticks([])
+yticks([])
+subplot(325)
+plot(spikes.t/ms, spikes.i, '|k')
+xlabel('Time (ms)')
+ylabel('Trials')
+
+
+# The common noisy input
+N = 25
+tau_input = 3*ms
+neuron_input = NeuronGroup(1, 'dx/dt = (1.5-x) / tau_input + (2 /tau_input)**.5 * xi : 1', method='euler')
+
+# The noisy neurons receiving the same input
+neurons = NeuronGroup(N, model=eqs_neurons, threshold='x > 1',
+                      reset='x = 0', refractory=5*ms, method='euler')
+neurons.x = 'rand()*0.2'
+neurons.I_shared = linked_var(neuron_input, 'x') # input.x is continuously fed into neurons.I
+spikes = SpikeMonitor(neurons)
+M = StateMonitor(neurons, ('x', 'I'), record=True)
+
+run(1000*ms)
+
+ax = subplot(322, sharey=ax_top)
+plot(M.t/ms, add_spike_peak(M.x[:].T, spikes.t[:], spikes.i[:]), '-k', alpha=0.05)
+ax.set_frame_on(False)
+xticks([])
+yticks([])
+ax = subplot(324, sharey=ax_mid)
+plot(M.t/ms, M.I[0], '-k')
+ax.set_frame_on(False)
+xticks([])
+yticks([])
+subplot(326)
+plot(spikes.t/ms, spikes.i, '|k')
+xlabel('Time (ms)')
+ylabel('Trials')
+
+
+
+
+
 
 
 plt.show()
