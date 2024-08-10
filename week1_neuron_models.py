@@ -218,7 +218,10 @@ xlabel('Time (ms)')
 ylabel('v')
 axhline(1, ls='--', c='g', lw=2)
 tight_layout()
-######################################Reliable spike timing#########################
+
+
+
+########################Reliable spike timing#########################
 
 plt.figure(2)
 plt.figure(figsize=(10, 6))
@@ -244,7 +247,13 @@ neurons.I_shared = linked_var(neuron_input, 'x') # input.x is continuously fed i
 spikes = SpikeMonitor(neurons)
 M = StateMonitor(neurons, ('x', 'I'), record=True)
 
-run(1000*ms)
+#run(1000*ms)
+net6 = Network()
+net6.add(neuron_input)
+net6.add(neurons)
+net6.add(spikes)
+net6.add(M)
+net6.run(1000*ms)
 
 def add_spike_peak(x, t, i):
     T = array(rint(t/defaultclock.dt), dtype=int)
@@ -281,7 +290,12 @@ neurons.I_shared = linked_var(neuron_input, 'x') # input.x is continuously fed i
 spikes = SpikeMonitor(neurons)
 M = StateMonitor(neurons, ('x', 'I'), record=True)
 
-run(1000*ms)
+net7 = Network()
+net7.add(neuron_input)
+net7.add(neurons)
+net7.add(spikes)
+net7.add(M)
+net7.run(1000*ms)
 
 ax = subplot(322, sharey=ax_top)
 plot(M.t/ms, add_spike_peak(M.x[:].T, spikes.t[:], spikes.i[:]), '-k', alpha=0.05)
@@ -297,13 +311,6 @@ subplot(326)
 plot(spikes.t/ms, spikes.i, '|k')
 xlabel('Time (ms)')
 ylabel('Trials')
-
-
-
-
-
-
-
 plt.show()
 
 
