@@ -311,12 +311,85 @@ subplot(326)
 plot(spikes.t/ms, spikes.i, '|k')
 xlabel('Time (ms)')
 ylabel('Trials')
+
+
+######################Leaky integrate and fire with synapses#################################
+
+duration = 50*ms
+
+eqs = '''
+dv/dt = (4*I-v)/(15*ms) : 1
+dI/dt = -I/(5*ms) : 1
+'''
+
+G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler')
+nspikes_in = 100
+timesep_in = 10*ms
+G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
+S = Synapses(G_in, G_out, on_pre='I += 0.6')
+S.connect(p=1)
+M = StateMonitor(G_out, ('v', 'I'), record=True)
+
+
+net8 = Network()
+net8.add(G_out)
+net8.add(G_in)
+net8.add(S)
+net8.add(M)
+net8.run(duration)
+
+
+plt.figure(3)
+plt.figure(figsize=(4, 6))
+plt.subplot(211)
+plt.plot(M.t/ms, M.v[0], label='v')
+plt.axhline(1, ls='--', c='g', lw=2)
+plt.ylabel('v')
+plt.subplot(212)
+plt.plot(M.t/ms, M.I[0], label='I', c='C1')
+plt.xlabel('Time (ms)')
+plt.ylabel('Input current $I$')
+
+
+
+#################################Adaptive Threshold LIF#########################
+
+duration = 150*ms
+
+eqs = '''
+dv/dt = -v/(15*ms) : 1
+dvt/dt = (1-vt)/(50*ms) : 1
+'''
+G_out = NeuronGroup(2, eqs, threshold='v>vt', reset='v=0; vt+=0.4*i', method='euler')
+G_out.vt = 1
+nspikes_in = 100
+timesep_in = 2*ms
+G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
+S = Synapses(G_in, G_out, on_pre='v += 0.3')
+S.connect(p=1)
+M = StateMonitor(G_out, ('v', 'vt'), record=True)
+
+net9 = Network()
+net9.add(G_out)
+net9.add(G_in)
+net9.add(S)
+net9.add(M)
+net9.run(duration)
+
+plt.figure(4)
+plt.figure(figsize=(8, 4))
+plt.subplot(211)
+plt.plot(M.t/ms, M.v[0])
+plt.plot(M.t/ms, M.vt[0], ls='--', c='g', lw=2)
+plt.ylabel('v')
+plt.title('Standard LIF')
+plt.subplot(212)
+plt.plot(M.t/ms, M.v[1])
+plt.plot(M.t/ms, M.vt[1], ls='--', c='g', lw=2)
+plt.xlabel('Time (ms)')
+plt.ylabel('v')
+plt.title('Adaptive threshold')
 plt.show()
-
-
-
-
-
 
 
 
