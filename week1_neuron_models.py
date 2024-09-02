@@ -157,17 +157,16 @@ plt.savefig("Hodgkin-Huxley_channels.png")
 #plt.show()
 
 ######################Integrate and fire neuron##############################
-
-
-
-duration = 50*ms
+duration = 50*ms #Duration of pulse 
 
 eqs = '''
-dv/dt = 0/second : 1
+dv/dt = 0/second : 1 #Constant potential
 '''
-G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler')
+G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler') # Spike produced at a threshold over v=1, resets at v=0, Euler numerical integration method
 nspikes_in = 100
 timesep_in = 10*ms
+
+print((1+arange(nspikes_in))*timesep_in)
 G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
 S = Synapses(G_in, G_out, on_pre='v += 0.3')
 S.connect(p=1)
