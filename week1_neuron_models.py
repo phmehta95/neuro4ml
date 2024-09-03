@@ -162,15 +162,30 @@ duration = 50*ms #Duration of pulse
 eqs = '''
 dv/dt = 0/second : 1 #Constant potential
 '''
+#Output neuron
 G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler') # Spike produced at a threshold over v=1, resets at v=0, Euler numerical integration method
 nspikes_in = 100
 timesep_in = 10*ms
 
-print((1+arange(nspikes_in))*timesep_in)
+#Input neuron
 G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
+#The SpikeGenerator Group class governs when neuron spikes are produced
+#1 = Number of neurons in the group
+#[0]*nspikes_in -> array of integers showing the indices of the spiking cells
+#(1+arange(spikes_in))*timesep_in -> The spike times for the cells given previously (needs to be the same length as indices)
+
+#Synapse between neurons
 S = Synapses(G_in, G_out, on_pre='v += 0.3')
+#Synapses are a small gap between neurons allowing for signals to pass from one neuron to another.
+#The first parameter in this class id the source of the spikes (SpikeGeneratorGroup above)
+#The second parameter is the target of the spikes, typically a NeuronGroup (G_out)
+#The third parameter is the code that will be executed after every pre-synaptic spike. on_pre defines what happens when a pre-synaptic spike arrives at a synapse, and adds the value of the synaptic variable (0.3) to the postsynaptic variable - this is why the potential value increases by 0.3 after every 10ms  
 S.connect(p=1)
+#Connecting all neuron pairs with a probability of one
+
 M = StateMonitor(G_out, 'v', record=True)
+#StateMonitor will record values from G_out, first parameter is the target (output) neuron
+#record = True records all indices
 
 net4 = Network()
 net4.add(G_out)
@@ -181,19 +196,19 @@ net4.run(duration)
 
 plt.figure(0)
 plt.figure( figsize=(8, 3))
-plt.plot(M.t/ms, M.v[0])
+plt.plot(M.t/ms, M.v[0])#Plotting the variables of StateMonitor
 xlabel('Time (ms)')
 ylabel('v')
 axhline(1, ls='--', c='g', lw=2)
 tight_layout()
+plt.savefig("Integrate_and_fire_neuron.png")
 
-
-######################Leaky untegrate and fire neuron##############################
+######################Leaky integrate and fire neuron##############################
 
 duration = 50*ms
 
 eqs = '''
-dv/dt = -v/(15*ms) : 1
+dv/dt = -v/(15*ms) : 1 #Exponential decay after each 15 ms  (tau = 15ms)
 '''
 G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler')
 nspikes_in = 100
@@ -217,7 +232,7 @@ xlabel('Time (ms)')
 ylabel('v')
 axhline(1, ls='--', c='g', lw=2)
 tight_layout()
-
+plt.savefig("LIF.png")
 
 
 ########################Reliable spike timing#########################
@@ -311,6 +326,7 @@ plot(spikes.t/ms, spikes.i, '|k')
 xlabel('Time (ms)')
 ylabel('Trials')
 
+plt.savefig("SpikeTiming_Reliable.png")
 
 ######################Leaky integrate and fire with synapses#################################
 
@@ -325,7 +341,7 @@ G_out = NeuronGroup(1, eqs, threshold='v>1', reset='v=0', method='euler')
 nspikes_in = 100
 timesep_in = 10*ms
 G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
-S = Synapses(G_in, G_out, on_pre='I += 0.6')
+S = Synapses(G_in, G_out, on_pre='I += 0.6')#Adding 0.6 to the input current of the pre-synapse 
 S.connect(p=1)
 M = StateMonitor(G_out, ('v', 'I'), record=True)
 
@@ -348,7 +364,7 @@ plt.subplot(212)
 plt.plot(M.t/ms, M.I[0], label='I', c='C1')
 plt.xlabel('Time (ms)')
 plt.ylabel('Input current $I$')
-
+plt.savefig("LIF_current_synapses.png")
 
 
 #################################Adaptive Threshold LIF#########################
@@ -359,12 +375,12 @@ eqs = '''
 dv/dt = -v/(15*ms) : 1
 dvt/dt = (1-vt)/(50*ms) : 1
 '''
-G_out = NeuronGroup(2, eqs, threshold='v>vt', reset='v=0; vt+=0.4*i', method='euler')
+G_out = NeuronGroup(2, eqs, threshold='v>vt', reset='v=0; vt+=0.4*i', method='euler')#Adaptive threshold where 0.4 is added to the threhold after spiking
 G_out.vt = 1
 nspikes_in = 100
-timesep_in = 2*ms
+timesep_in = 2*ms #Separation of 2ms
 G_in = SpikeGeneratorGroup(1, [0]*nspikes_in, (1+arange(nspikes_in))*timesep_in)
-S = Synapses(G_in, G_out, on_pre='v += 0.3')
+S = Synapses(G_in, G_out, on_pre='v += 0.3')#Potential value increases by 0.3 after every 2ms
 S.connect(p=1)
 M = StateMonitor(G_out, ('v', 'vt'), record=True)
 
@@ -388,6 +404,7 @@ plt.plot(M.t/ms, M.vt[1], ls='--', c='g', lw=2)
 plt.xlabel('Time (ms)')
 plt.ylabel('v')
 plt.title('Adaptive threshold')
+plt.savefig("Adaptive_threshold.png")
 plt.show()
 
 
