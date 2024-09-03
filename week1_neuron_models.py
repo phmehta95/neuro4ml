@@ -248,7 +248,7 @@ dx/dt = (.65*I - x) / tau + sigma * (2 / tau)**.5 * xi : 1
 I = I_shared*int((t>10*ms) and (t<950*ms)) : 1
 I_shared : 1 (linked)
 '''
-
+#xi defines random noise by specifying a stochastic differential equation (Gaussian random variable with mean 0 and standard deviation of 1)
 # The common input
 N = 25
 neuron_input = NeuronGroup(1, 'x = 1.5 : 1', method='euler')
